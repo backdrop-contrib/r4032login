@@ -1,0 +1,42 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_menu().
+ */
+function r4032login_menu($may_cache) {
+  $items = array();
+
+  if ($may_cache) {
+    global $user;
+    $items[] = array(
+      'path' => 'r4032login',
+      'callback' => 'r4032login',
+      'access' => TRUE,
+      'type' => MENU_CALLBACK,
+    );
+  }
+
+  return $items;
+}
+
+/**
+ * MENU_CALLBACK for /4032login
+ *
+ * Redirect anonymous users from 403 Access Denied pages to the /user/login page
+ * with a message explaining that they must login to view the requested page
+ * and a query string parameter appended to the url to return after login.
+ */
+function r4032login() {
+  global $user;
+  if ($user->uid==0) {
+    drupal_set_message('Access denied. You must login to view this page.', 'error');
+    header('Location:/user/login?destination=' . drupal_urlencode($_REQUEST['q']), TRUE, 302);
+    exit;
+  } else {
+    drupal_set_title(t('Access denied'));
+    $return = t('You are not authorized to access this page.');
+    print theme('page', $return);
+    exit;
+  }
+}
