@@ -2,22 +2,44 @@
 // $Id$
 
 /**
+ * @file
+ * Redirect denied pages to the user login form.
+ */
+
+/**
  * Implementation of hook_menu().
  */
 function r4032login_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
-    global $user;
     $items[] = array(
       'path' => 'r4032login',
-      'callback' => 'r4032login',
+      'callback' => 'r4032login_redirect',
       'access' => TRUE,
       'type' => MENU_CALLBACK,
+    );
+    $items[] = array(
+      'path' => 'admin/settings/r4032login',
+      'title' => t('r4032login'),
+      'description' => t('Toggle display of denied message on login page.'),
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('r4032login_admin_settings'),
+      'access' => user_access('administer site configuration')
     );
   }
 
   return $items;
+}
+
+function r4032login_admin_settings() {
+  $form = array();
+  $form['r4032login_display_denied_message'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Display access denied message on login page'),
+    '#default_value' => variable_get('r4032login_display_denied_message', TRUE)
+  );
+  return system_settings_form($form);
 }
 
 /**
@@ -27,16 +49,23 @@ function r4032login_menu($may_cache) {
  * with a message explaining that they must login to view the requested page
  * and a query string parameter appended to the url to return after login.
  */
-function r4032login() {
+function r4032login_redirect() {
   global $user;
-  if ($user->uid==0) {
-    drupal_set_message('Access denied. You must login to view this page.', 'error');
-    header('Location:/user/login?destination=' . drupal_urlencode($_REQUEST['q']), TRUE, 302);
-    exit;
-  } else {
-    drupal_set_title(t('Access denied'));
-    $return = t('You are not authorized to access this page.');
-    print theme('page', $return);
+  if ($user->uid == 0) {
+    if (variable_get('r4032login_display_denied_message', TRUE)) {
+      drupal_set_message(t('Access denied. You must login to view this page.'), 'error');
+    }
+    // using drupal_goto() with destination set causes a recursive redirect loop
+    header('Location: '. url('user/login', 'destination='. drupal_urlencode($_REQUEST['q']), NULL, TRUE), TRUE, 302);
     exit;
   }
+  else {
+    print theme('page', theme('r4032login_denied'));
+    exit;
+  }
+}
+
+function theme_r4032login_denied() {
+  drupal_set_title(t('Access denied'));
+  return '<p>'. t('You are not authorized to access this page.') .'</p>';
 }

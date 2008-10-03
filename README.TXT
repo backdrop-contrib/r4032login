@@ -17,16 +17,6 @@ Installation
 3. In the "Default 403 (access denied) page" field, type: r4032login
 4. Click the "Save configuration" button
 
-Attribution
---------------------------------------------------------------------------------
-Project Sponsor(s):
-  Smullin Design and Development, LLC
-  Web: http://www.smullindesign.com
-  Email: sales@smullindesign.com
-
-Project Maintainer(s):
-  Mike Smullin <mike@smullindesign.com>
-
 Support
 --------------------------------------------------------------------------------
 This open source project is supported by the Drupal.org community. To report a
