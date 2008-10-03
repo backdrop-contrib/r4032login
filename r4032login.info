@@ -1,3 +1,4 @@
 ; $Id$
 name = r4032login
 description = Redirect anonymous users from 403 Access Denied pages to the /user/login page.
+core = 6.x
