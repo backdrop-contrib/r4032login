@@ -33,6 +33,12 @@ function r4032login_admin_settings() {
     '#title' => t('Display access denied message on login page'),
     '#default_value' => variable_get('r4032login_display_denied_message', TRUE)
   );
+  $form['r4032login_user_register_message'] = array(
+    '#type' => 'textfield',
+    '#title' => t('User register message'),
+    '#description' => t('The message to display when a logged-in user tries to register another account through the !new_account. Drupal does not allow it, so regular users must log out first. Administrators should create new users in !link.', array('!new_account' => l('new account registration form', 'user/register'), '!link' => l(t('User management'), 'admin/user/user/create'))),
+    '#default_value' => variable_get('r4032login_user_register_message', t('You are not authorized to access this page.'))
+  );
   return system_settings_form($form);
 }
 
@@ -42,6 +48,9 @@ function r4032login_admin_settings() {
 function r4032login_theme() {
   return array(
     'r4032login_denied' => array(
+      'arguments' => array()
+    ),
+    'r4032login_user_register' => array(
       'arguments' => array()
     )
   );
@@ -64,6 +73,11 @@ function r4032login_redirect() {
     header('Location: '. url('user/login', array('query' => 'destination='. drupal_urlencode($_REQUEST['q']), 'absolute' => TRUE)), TRUE, 302);
     exit;
   }
+  // checking arg() returns r4032login
+  elseif ($_REQUEST['q'] == 'user/register') {
+    print theme('page', theme('r4032login_user_register'));
+    exit;
+  }
   else {
     print theme('page', theme('r4032login_denied'));
     exit;
@@ -73,4 +87,9 @@ function r4032login_redirect() {
 function theme_r4032login_denied() {
   drupal_set_title(t('Access denied'));
   return '<p>'. t('You are not authorized to access this page.') .'</p>';
+}
+
+function theme_r4032login_user_register() {
+  drupal_set_title(t('Access denied'));
+  return '<p>'. variable_get('r4032login_user_register_message', t('You are not authorized to access this page.')) .'</p>';
 }

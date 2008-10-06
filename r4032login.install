@@ -1,0 +1,10 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function r4032login_uninstall() {
+  variable_del('r4032login_display_denied_message');
+  variable_del('r4032login_user_register_message');
+}
