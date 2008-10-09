@@ -13,6 +13,7 @@ function r4032login_menu() {
   $items = array();
   $items['r4032login'] = array(
     'page callback' => 'r4032login_redirect',
+    'access callback' => 'r4032login_access',
     'type' => MENU_CALLBACK
   );
   $items['admin/settings/r4032login'] = array(
@@ -24,6 +25,14 @@ function r4032login_menu() {
     'access arguments' => array('administer site configuration')
   );
   return $items;
+}
+
+/**
+ * Without an access callback on the menu item for r4032login_redirect,
+ * the redirect will be 403 and just have the default access denied page anyway.
+ */
+function r4032login_access() {
+  return TRUE;
 }
 
 function r4032login_admin_settings() {
