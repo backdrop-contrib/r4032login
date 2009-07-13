@@ -17,7 +17,7 @@ function r4032login_menu() {
     'type' => MENU_CALLBACK
   );
   $items['admin/settings/r4032login'] = array(
-    'title' => 'r4032login',
+    'title' => 'Redirect 403 to User Login',
     'description' => 'Toggle display of denied message on login page.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('r4032login_admin_settings'),
@@ -79,7 +79,7 @@ function r4032login_redirect() {
       drupal_set_message(t('Access denied. You must login to view this page.'), 'error');
     }
     // using drupal_goto() with destination set causes a recursive redirect loop
-    header('Location: '. url('user/login', array('query' => 'destination='. drupal_urlencode($_REQUEST['q']), 'absolute' => TRUE)), TRUE, 302);
+    header('Location: '. url('user/login', array('query' => drupal_get_destination(), 'absolute' => TRUE)), TRUE, 302);
     exit;
   }
   // checking arg() returns r4032login
