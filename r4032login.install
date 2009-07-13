@@ -2,6 +2,20 @@
 // $Id$
 
 /**
+ * Implementation of hook_enable().
+ */
+function r4032login_enable() {
+  variable_set('site_403', 'r4032login');
+}
+
+/**
+ * Implementation of hook_disable().
+ */
+function r4032login_disable() {
+  variable_del('site_403');
+}
+
+/**
  * Implementation of hook_uninstall().
  */
 function r4032login_uninstall() {
