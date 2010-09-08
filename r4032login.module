@@ -45,7 +45,7 @@ function r4032login_admin_settings() {
   $form['r4032login_user_register_message'] = array(
     '#type' => 'textfield',
     '#title' => t('User register message'),
-    '#description' => t('The message to display when a logged-in user tries to register another account through the !new_account. Drupal does not allow it, so regular users must log out first. Administrators should create new users in !link.', array('!new_account' => l('new account registration form', 'user/register'), '!link' => l(t('User management'), 'admin/user/user/create'))),
+    '#description' => t('The message to display when a logged-in user tries to register another account through the !new_account. Drupal does not allow it, so regular users must log out first. Administrators should create new users in !link.', array('!new_account' => l(t('new account registration form'), 'user/register'), '!link' => l(t('User management'), 'admin/user/user/create'))),
     '#default_value' => variable_get('r4032login_user_register_message', t('You are not authorized to access this page.'))
   );
   return system_settings_form($form);
