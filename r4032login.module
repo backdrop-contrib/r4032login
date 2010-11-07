@@ -7,22 +7,14 @@
  */
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function r4032login_menu() {
   $items = array();
   $items['r4032login'] = array(
     'page callback' => 'r4032login_redirect',
-    'access callback' => 'r4032login_access',
-    'type' => MENU_CALLBACK
-  );
-  $items['admin/settings/r4032login'] = array(
-    'title' => 'Redirect 403 to User Login',
-    'description' => 'Toggle display of denied message on login page.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('r4032login_admin_settings'),
-    'access callback' => 'user_access',
-    'access arguments' => array('administer site configuration')
+    'access callback' => 'r4032login_access_callback',
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
@@ -31,37 +23,31 @@ function r4032login_menu() {
  * Without an access callback on the menu item for r4032login_redirect,
  * the redirect will be 403 and just have the default access denied page anyway.
  */
-function r4032login_access() {
+function r4032login_access_callback() {
   return TRUE;
 }
 
-function r4032login_admin_settings() {
-  $form = array();
-  $form['r4032login_display_denied_message'] = array(
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function r4032login_form_system_site_information_settings_alter(&$form, &$form_state, $form_id) {
+  $form['error_page']['r4032login_display_denied_message'] = array(
     '#type' => 'checkbox',
+    '#weight' => -1,
     '#title' => t('Display access denied message on login page'),
-    '#default_value' => variable_get('r4032login_display_denied_message', TRUE)
-  );
-  $form['r4032login_user_register_message'] = array(
-    '#type' => 'textfield',
-    '#title' => t('User register message'),
-    '#description' => t('The message to display when a logged-in user tries to register another account through the !new_account. Drupal does not allow it, so regular users must log out first. Administrators should create new users in !link.', array('!new_account' => l(t('new account registration form'), 'user/register'), '!link' => l(t('User management'), 'admin/user/user/create'))),
-    '#default_value' => variable_get('r4032login_user_register_message', t('You are not authorized to access this page.'))
+    '#default_value' => variable_get('r4032login_display_denied_message', TRUE),
   );
   return system_settings_form($form);
 }
 
 /**
- * Implementation of hook_theme().
+ * Implements hook_theme().
  */
 function r4032login_theme() {
   return array(
     'r4032login_denied' => array(
-      'arguments' => array()
+      'variables' => array(),
     ),
-    'r4032login_user_register' => array(
-      'arguments' => array()
-    )
   );
 }
 
@@ -73,36 +59,27 @@ function r4032login_theme() {
  * and a query string parameter appended to the url to return after login.
  */
 function r4032login_redirect() {
-  global $user;
-  if ($user->uid == 0) {
+  global $user, $language;
+  if (user_is_anonymous()) {
     if (variable_get('r4032login_display_denied_message', TRUE)) {
-      drupal_set_message(t('Access denied. You must login to view this page.'), 'error');
+      drupal_set_message(t('Access denied.'), 'error');
     }
-    // A special case for the homepage.
-    if (empty($_REQUEST['q'])) {
-      $_REQUEST['q'] = '<front>';
-    }
+    // Check for path prefix and strip it out if its found.
+    $prefix = $language->language . '/';
+    $path = str_replace($prefix, '', $_GET['destination']);
     // using drupal_goto() with destination set causes a recursive redirect loop
-    header('Location: '. url('user/login', array('query' => array('destination' => rawurlencode($_REQUEST['q'])), 'absolute' => TRUE)), TRUE, 302);
-    exit;
-  }
-  // checking arg() returns r4032login
-  elseif ($_REQUEST['q'] == 'user/register') {
-    print theme('page', theme('r4032login_user_register'));
+    header('Location: ' . url('user/login', array('query' => array('destination' => $path), 'absolute' => TRUE)), TRUE, 302);
     exit;
   }
   else {
-    print theme('page', theme('r4032login_denied'));
-    exit;
+    return drupal_set_page_content(theme('r4032login_denied'));
   }
 }
 
+/**
+ * Display themed Access denied page.
+ */
 function theme_r4032login_denied() {
   drupal_set_title(t('Access denied'));
-  return '<p>'. t('You are not authorized to access this page.') .'</p>';
-}
-
-function theme_r4032login_user_register() {
-  drupal_set_title(t('Access denied'));
-  return '<p>'. variable_get('r4032login_user_register_message', t('You are not authorized to access this page.')) .'</p>';
+  return '<p>' . t('You are not authorized to access this page.') . '</p>';
 }

@@ -2,5 +2,5 @@
 name = Redirect 403 to User Login
 description = Redirect anonymous users from 403 Access Denied pages to the /user/login page.
 core = 7.x
-files[] = r4032login.module
 files[] = r4032login.install
+files[] = r4032login.module
