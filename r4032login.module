@@ -64,9 +64,7 @@ function r4032login_redirect() {
     if (variable_get('r4032login_display_denied_message', TRUE)) {
       drupal_set_message(t('Access denied.'), 'error');
     }
-    // Check for path prefix and strip it out if its found.
-    $prefix = $language->language . '/';
-    $path = str_replace($prefix, '', $_GET['destination']);
+    $path = _r4032login_remove_language($_GET['destination']);
     // using drupal_goto() with destination set causes a recursive redirect loop
     header('Location: ' . url('user/login', array('query' => array('destination' => $path), 'absolute' => TRUE)), TRUE, 302);
     exit;
@@ -74,6 +72,23 @@ function r4032login_redirect() {
   else {
     return drupal_set_page_content(theme('r4032login_denied'));
   }
+}
+
+/**
+ * Special handling for sites that use localization.
+ *
+ * @see http://drupal.org/node/339120
+ */
+function _r4032login_remove_language($destination) {
+  $prefix = arg(0, $destination);
+  $languages = language_list();
+
+  while (list(, $lang) = each($languages)) {
+    if (strcasecmp($prefix, $lang->language) == 0) {
+      return substr($destination, strlen($prefix) + 1); // remove prefix and slash
+    }
+  }
+  return $destination;
 }
 
 /**
