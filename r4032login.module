@@ -14,6 +14,8 @@ function r4032login_menu() {
     'page callback' => 'r4032login_redirect',
     'access callback' => 'r4032login_access_callback',
     'type' => MENU_CALLBACK,
+    'title' => 'Access denied',
+    'description' => 'You are not authorized to access this page.',
   );
   return $items;
 }
@@ -32,9 +34,20 @@ function r4032login_access_callback() {
 function r4032login_form_system_site_information_settings_alter(&$form, &$form_state, $form_id) {
   $form['error_page']['r4032login_display_denied_message'] = array(
     '#type' => 'checkbox',
-    '#weight' => -1,
+    '#weight' => 5,
     '#title' => t('Display access denied message on login page'),
     '#default_value' => variable_get('r4032login_display_denied_message', TRUE),
+  );
+  $form['error_page']['r4032login_access_denied_message'] = array(
+    '#type' => 'textfield',
+    '#weight' => 6,
+    '#title' => t("User login 'access denied' message"),
+    '#default_value' => variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.')),
+    '#states' => array(
+      'invisible' => array('input[name="r4032login_display_denied_message"]' => array(
+        'checked' => FALSE,
+      )),
+    ),
   );
   return system_settings_form($form);
 }
@@ -51,7 +64,7 @@ function r4032login_theme() {
 }
 
 /**
- * MENU_CALLBACK for /4032login
+ * MENU_CALLBACK for /r4032login
  *
  * Redirect anonymous users from 403 Access Denied pages to the /user/login page
  * with a message explaining that they must login to view the requested page
@@ -61,7 +74,8 @@ function r4032login_redirect() {
   global $user, $language;
   if (user_is_anonymous()) {
     if (variable_get('r4032login_display_denied_message', TRUE)) {
-      drupal_set_message(t('Access denied.'), 'error');
+      $message = variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.'));
+      drupal_set_message(t($message), 'error');
     }
     $path = _r4032login_remove_language($_GET['destination']);
     // using drupal_goto() with destination set causes a recursive redirect loop

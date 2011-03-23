@@ -2,7 +2,7 @@
 r4032login
 --------------------------------------------------------------------------------
 Redirect the HTTP 403 error page to the Drupal /user/login page with a message
-that reads, "Access denied! You must login to view this page." Also, a redirect
+that reads, "Access denied. You must login to view this page." Also, a redirect
 to the desired page is appended in the url query string so that, once login is
 successful, the user is taken directly where they were originally trying to go.
 
@@ -12,6 +12,7 @@ Installation
 --------------------------------------------------------------------------------
 
 Extract and enable r4032login.
+Configure at admin/config/system/site-information .
 
 Support
 --------------------------------------------------------------------------------
