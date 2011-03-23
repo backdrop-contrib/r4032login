@@ -49,6 +49,13 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
       )),
     ),
   );
+  $form['error_page']['r4032login_redirect_authenticated_users_to'] = array(
+    '#type' => 'textfield',
+    '#weight' => 7,
+    '#title' => t("Rediect authenticated users to"),
+    '#description' => t('If an authenticated user tries to access a page they can not, redirect them to the given page. Use &lt;front&gt; for the front page, leave blank for a default access denied page.'),
+    '#default_value' => variable_get('r4032login_redirect_authenticated_users_to', ''),
+  );
   return system_settings_form($form);
 }
 
@@ -83,7 +90,17 @@ function r4032login_redirect() {
     exit;
   }
   else {
-    return drupal_set_page_content(theme('r4032login_denied'));
+    // Check to see if we are to redirect the user.
+    $redirect = variable_get('r4032login_redirect_authenticated_users_to', '');
+    if (empty($redirect)) {
+      // Display the default access denied page.
+      return drupal_set_page_content(theme('r4032login_denied'));
+    }
+    else {
+      // Custom access denied page for logged in users.
+      header('Location: ' . url($redirect, array('absolute' => TRUE)));
+      exit;
+    }
   }
 }
 
