@@ -87,7 +87,7 @@ function r4032login_redirect() {
     $path = _r4032login_remove_language($_GET['destination']);
     // using drupal_goto() with destination set causes a recursive redirect loop
     header('Location: ' . url('user/login', array('query' => array('destination' => $path), 'absolute' => TRUE)), TRUE, 302);
-    exit;
+    drupal_exit();
   }
   else {
     // Check to see if we are to redirect the user.
@@ -99,7 +99,7 @@ function r4032login_redirect() {
     else {
       // Custom access denied page for logged in users.
       header('Location: ' . url($redirect, array('absolute' => TRUE)));
-      exit;
+      drupal_exit();
     }
   }
 }
