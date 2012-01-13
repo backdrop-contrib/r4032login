@@ -86,7 +86,8 @@ function r4032login_redirect() {
     }
     $path = _r4032login_remove_language(request_uri());
     // using drupal_goto() with destination set causes a recursive redirect loop
-    header('Location: ' . url('user/login', array('query' => array('destination' => $path), 'absolute' => TRUE)), TRUE, 302);
+    // need to decode URL to prevent double-encoding UTF-8 characters https://drupal.org/node/1403616
+    header('Location: ' . url('user/login', array('query' => array('destination' => urldecode($path)), 'absolute' => TRUE)), TRUE, 302);
     drupal_exit();
   }
   else {
