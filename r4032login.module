@@ -84,7 +84,7 @@ function r4032login_redirect() {
       $message = variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.'));
       drupal_set_message(t($message), 'error');
     }
-    $path = _r4032login_remove_language(request_uri());
+    $path = _r4032login_uri();
     // using drupal_goto() with destination set causes a recursive redirect loop
     // need to decode URL to prevent double-encoding UTF-8 characters https://drupal.org/node/1403616
     header('Location: ' . url('user/login', array('query' => array('destination' => urldecode($path)), 'absolute' => TRUE)), TRUE, 302);
@@ -106,20 +106,30 @@ function r4032login_redirect() {
 }
 
 /**
- * Special handling for sites that use localization.
- *
- * @see http://drupal.org/node/339120
+ * Like request_uri, but without base path or language prefix
  */
-function _r4032login_remove_language($destination) {
-  $prefix = arg(0, $destination);
+function _r4032login_uri() {
+  global $base_path;
+  $path = request_uri();
   $languages = language_list();
 
-  while (list(, $lang) = each($languages)) {
-    if (strcasecmp($prefix, $lang->language) == 0) {
-      return substr($destination, strlen($prefix) + 1); // remove prefix and slash
+  // Strip base path
+  if (strpos($path, $base_path) === 0) {
+    $path = substr($path, strlen($base_path));
+  }
+
+  // Strip language
+  $args = explode('/', $path);
+  $prefix = array_shift($args);
+
+  foreach ($languages as $language) {
+    if (!empty($language->prefix) && $language->prefix == $prefix) {
+      // Rebuild $path with the language removed.
+      return implode('/', $args);
     }
   }
-  return $destination;
+
+  return $path;
 }
 
 /**
