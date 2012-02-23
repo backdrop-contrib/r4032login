@@ -84,10 +84,8 @@ function r4032login_redirect() {
       $message = variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.'));
       drupal_set_message(t($message), 'error');
     }
-    $path = _r4032login_remove_language(request_uri());
     // using drupal_goto() with destination set causes a recursive redirect loop
-    // need to decode URL to prevent double-encoding UTF-8 characters https://drupal.org/node/1403616
-    header('Location: ' . url('user/login', array('query' => array('destination' => urldecode($path)), 'absolute' => TRUE)), TRUE, 302);
+    header('Location: '. url('user/login', array('query' => array('destination' => _r4032login_destination()), 'absolute' => TRUE)), TRUE, 302);
     drupal_exit();
   }
   else {
@@ -106,11 +104,14 @@ function r4032login_redirect() {
 }
 
 /**
- * Special handling for sites that use localization.
+ * Version of drupal_get_destination which works inside of a 403 callback
  *
- * @see http://drupal.org/node/339120
  */
-function _r4032login_remove_language($destination) {
+function _r4032login_destination() {
+  // decode URL to prevent double-encoding https://drupal.org/node/1403616
+  $destination = urldecode(request_uri());
+
+  // Remove language prefix
   $prefix = arg(0, $destination);
   $languages = language_list();
 
@@ -119,6 +120,7 @@ function _r4032login_remove_language($destination) {
       return substr($destination, strlen($prefix) + 1); // remove prefix and slash
     }
   }
+
   return $destination;
 }
 
