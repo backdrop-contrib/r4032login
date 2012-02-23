@@ -117,6 +117,17 @@ function _r4032login_destination() {
     $destination = substr($destination, strlen($base_path));
   }  
 
+  if (!variable_get('clean_url', 0)) {
+    // Clean URLs disabled, so break apart the query string and
+    // pull out the path.
+    $destination = parse_url($destination);
+    $queryarray = explode('&', $destination['query']);
+    $path = str_replace('q=', '', $queryarray[0]);
+    unset($queryarray[0]);
+    $query = !empty($queryarray) ? '?'. implode('&', $queryarray) : '';
+    $destination = $path . $query;
+  }
+
   // If the language path prefixing is enabled remove it from the path.
   if (variable_get('language_negotiation', FALSE)) {
     $args = explode('/', $destination);
