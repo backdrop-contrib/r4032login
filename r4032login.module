@@ -117,13 +117,19 @@ function _r4032login_destination() {
     $destination = substr($destination, strlen($base_path));
   }  
 
-  // Remove language prefix
-  $prefix = arg(0, $destination);
-  $languages = language_list();
+  // If the language path prefixing is enabled remove it from the path.
+  if (variable_get('language_negotiation', FALSE)) {
+    $args = explode('/', $destination);
+    $prefix = array_shift($args);
 
-  while (list(, $lang) = each($languages)) {
-    if (strcasecmp($prefix, $lang->language) == 0) {
-      return substr($destination, strlen($prefix) + 1); // remove prefix and slash
+    // Search prefix within enabled languages.
+    $languages = language_list('enabled');
+    foreach ($languages[1] as $language) {
+      if (!empty($language->prefix) && $language->prefix == $prefix) {
+        // Found a match, rebuild the path without the language.
+        $destination = implode('/', $args);
+        break;
+      }
     }
   }
 
