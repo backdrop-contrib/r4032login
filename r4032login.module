@@ -111,6 +111,12 @@ function _r4032login_destination() {
   // decode URL to prevent double-encoding https://drupal.org/node/1403616
   $destination = urldecode(request_uri());
 
+  // Remove basepath
+  global $base_path;
+  if (strpos($destination, $base_path) === 0) {
+    $destination = substr($destination, strlen($base_path));
+  }  
+
   // Remove language prefix
   $prefix = arg(0, $destination);
   $languages = language_list();
