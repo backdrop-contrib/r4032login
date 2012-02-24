@@ -85,7 +85,7 @@ function r4032login_redirect() {
       drupal_set_message(t($message), 'error');
     }
     // using drupal_goto() with destination set causes a recursive redirect loop
-    header('Location: '. url('user/login', array('query' => array('destination' => _r4032login_destination()), 'absolute' => TRUE)), TRUE, 302);
+    header('Location: ' . url('user/login', array('query' => array('destination' => _r4032login_destination()), 'absolute' => TRUE)), TRUE, 302);
     drupal_exit();
   }
   else {
@@ -124,7 +124,7 @@ function _r4032login_destination() {
     $queryarray = explode('&', $destination['query']);
     $path = str_replace('q=', '', $queryarray[0]);
     unset($queryarray[0]);
-    $query = !empty($queryarray) ? '?'. implode('&', $queryarray) : '';
+    $query = !empty($queryarray) ? '?' . implode('&', $queryarray) : '';
     $destination = $path . $query;
   }
 
