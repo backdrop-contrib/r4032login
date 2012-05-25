@@ -123,7 +123,7 @@ function _r4032login_destination() {
   global $base_path;
   if (strpos($destination, $base_path) === 0) {
     $destination = substr($destination, strlen($base_path));
-  }  
+  }
 
   if (!variable_get('clean_url', 0)) {
     // Clean URLs disabled, so break apart the query string and
@@ -151,6 +151,9 @@ function _r4032login_destination() {
       }
     }
   }
+
+  // Get alias for destination if there is one
+  $destination = drupal_get_path_alias($destination);
 
   return $destination;
 }
