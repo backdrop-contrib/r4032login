@@ -42,7 +42,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#type' => 'textfield',
     '#weight' => 6,
     '#title' => t("User login 'access denied' message"),
-    '#default_value' => variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.')),
+    '#default_value' => variable_get('r4032login_access_denied_message', t('Access denied. You must log in to view this page.')),
     '#states' => array(
       'invisible' => array('input[name="r4032login_display_denied_message"]' => array(
         'checked' => FALSE,
@@ -81,14 +81,14 @@ function r4032login_theme() {
  * MENU_CALLBACK for /r4032login
  *
  * Redirect anonymous users from 403 Access Denied pages to the /user/login page
- * with a message explaining that they must login to view the requested page
+ * with a message explaining that they must log in to view the requested page
  * and a query string parameter appended to the url to return after login.
  */
 function r4032login_redirect() {
   global $user, $language;
   if (user_is_anonymous()) {
     if (variable_get('r4032login_display_denied_message', TRUE)) {
-      $message = variable_get('r4032login_access_denied_message', t('Access denied. You must login to view this page.'));
+      $message = variable_get('r4032login_access_denied_message', t('Access denied. You must log in to view this page.'));
       drupal_set_message(t($message), 'error');
     }
     // using drupal_goto() with destination set causes a recursive redirect loop
