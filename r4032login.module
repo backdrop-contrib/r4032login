@@ -101,7 +101,7 @@ function r4032login_redirect() {
     $redirect = variable_get('r4032login_redirect_authenticated_users_to', '');
     if (empty($redirect)) {
       // Display the default access denied page.
-      return drupal_set_page_content(theme('r4032login_denied'));
+      return theme('r4032login_denied');
     }
     else {
       // Custom access denied page for logged in users.
