@@ -93,7 +93,7 @@ function r4032login_redirect() {
     }
     // using drupal_goto() with destination set causes a recursive redirect loop
     $login_path = variable_get('r4032login_user_login_path', 'user/login');
-    header('Location: ' . url($login_path, array('query' => array('destination' => _r4032login_destination()), 'absolute' => TRUE)), TRUE, 302);
+    header('Location: ' . url($login_path, array('query' => drupal_get_destination(), 'absolute' => TRUE)), TRUE, 302);
     drupal_exit();
   }
   else {
@@ -109,51 +109,6 @@ function r4032login_redirect() {
       drupal_exit();
     }
   }
-}
-
-/**
- * Version of drupal_get_destination which works inside of a 403 callback
- *
- */
-function _r4032login_destination() {
-  // decode URL to prevent double-encoding https://drupal.org/node/1403616
-  $destination = urldecode(request_uri());
-
-  // Remove basepath
-  global $base_path;
-  if (strpos($destination, $base_path) === 0) {
-    $destination = substr($destination, strlen($base_path));
-  }
-
-  if (!variable_get('clean_url', 0)) {
-    // Clean URLs disabled, so break apart the query string and
-    // pull out the path.
-    $destination = parse_url($destination);
-    $queryarray = explode('&', $destination['query']);
-    $path = str_replace('q=', '', $queryarray[0]);
-    unset($queryarray[0]);
-    $query = !empty($queryarray) ? '?' . implode('&', $queryarray) : '';
-    $destination = $path . $query;
-  }
-
-  // Check for a language prefix and remove it from the path.
-  $args = explode('/', $destination);
-  $prefix = array_shift($args);
-
-  // Search prefix within enabled languages.
-  $languages = language_list('enabled');
-  foreach ($languages[1] as $language) {
-    if (!empty($language->prefix) && $language->prefix == $prefix) {
-      // Found a match, rebuild the path without the language.
-      $destination = implode('/', $args);
-      break;
-    }
-  }
-
-  // Get alias for destination if there is one
-  $destination = drupal_get_path_alias($destination);
-
-  return $destination;
 }
 
 /**
