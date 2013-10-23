@@ -37,7 +37,26 @@ function r4032login_variable_info($options) {
     'description' => t('The path to the user login form. Omit the beginning slash, ie: user/login', array(), $options),
     'group' => 'r4032login',
   );
-
+  $variables['r4032login_default_redirect_code'] = array(
+    'type' => 'select',
+    'title' => t("HTTP default redirect code"),
+    'description' => t('The redirect code to send by default. 301 responses may be cached by browsers and proxies.'),
+    'default_value' => 302,
+    'group' => 'r4032login',
+  );
+  $variables['r4032login_match_redirect_code'] = array(
+    'type' => 'select',
+    'title' => t("HTTP redirect code to use for matching pages"),
+    'description' => t('The redirect code to send for paths that match. 301 responses may be cached by browsers and proxies.'),
+    'default' => 301,
+  );
+  $variables['r4032login_match_redirect_pages'] = array(
+    'type' => 'drupal_path',
+    'title' => t('Specify matching pages by using their paths.'),
+    'default' =>  '',
+    'description' => t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
+    'group' => 'r4032login',
+  );
   return $variables;
 }
 
