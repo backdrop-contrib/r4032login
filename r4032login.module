@@ -137,7 +137,15 @@ function r4032login_redirect() {
 
     }
     $code = $page_match ? variable_get('r4032login_match_redirect_code', 301) : variable_get('r4032login_default_redirect_code', 302);
-    header('Location: ' . url($login_path, array('query' => drupal_get_destination(), 'absolute' => TRUE)), TRUE, $code);
+    // The code in drupal_get_destination() doesn't preserve any query string
+    // on 403 pages, so reproduce the part we want here.
+    $path = $_GET['destination'];
+    $query = drupal_http_build_query(drupal_get_query_parameters(NULL, array('q', 'destination')));
+    if ($query != '') {
+      $path .= '?' . $query;
+    }
+    $destination = array('destination' => $path);
+    header('Location: ' . url($login_path, array('query' => $destination, 'absolute' => TRUE)), TRUE, $code);
     drupal_exit();
   }
   else {
