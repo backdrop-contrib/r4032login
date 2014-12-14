@@ -38,10 +38,16 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#title' => t('Display access denied message on login page'),
     '#default_value' => variable_get('r4032login_display_denied_message', TRUE),
   );
+  $form['error_page']['r4032login_redirect_to_destination'] = array(
+    '#type' => 'checkbox',
+    '#weight' => 6,
+    '#title' => t('Redirect user to the page they tried to access after login'),
+    '#default_value' => variable_get('r4032login_redirect_to_destination', TRUE),
+  );
   $form['error_page']['r4032login_access_denied_message'] = array(
     '#type' => 'textarea',
     '#rows' => 1,
-    '#weight' => 6,
+    '#weight' => 7,
     '#title' => t("User login 'access denied' message"),
     '#default_value' => variable_get('r4032login_access_denied_message', t('Access denied. You must log in to view this page.')),
     '#states' => array(
@@ -57,7 +63,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
       'warning' => t('Warning'),
       'status' => t('Status'),
     ),
-    '#weight' => 7,
+    '#weight' => 8,
     '#title' => t("User login 'access denied' message type"),
     '#default_value' => variable_get('r4032login_access_denied_message_type', 'error'),
     '#states' => array(
@@ -68,14 +74,14 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
   );
   $form['error_page']['r4032login_redirect_authenticated_users_to'] = array(
     '#type' => 'textfield',
-    '#weight' => 7,
+    '#weight' => 9,
     '#title' => t("Redirect authenticated users to"),
     '#description' => t('If an authenticated user tries to access a page they can not, redirect them to the given page. Use &lt;front&gt; for the front page, leave blank for a default access denied page.'),
     '#default_value' => variable_get('r4032login_redirect_authenticated_users_to', ''),
   );
   $form['error_page']['r4032login_user_login_path'] = array(
     '#type' => 'textfield',
-    '#weight' => 8,
+    '#weight' => 10,
     '#title' => t("Path to user login form"),
     '#description' => t('The path to the user login form. Omit the beginning slash, ie: user/login'),
     '#default_value' => variable_get('r4032login_user_login_path', 'user/login'),
@@ -83,7 +89,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
   $options = array('301' => '301 Moved Permanently', '302' => '302 Found');
   $form['error_page']['r4032login_default_redirect_code'] = array(
     '#type' => 'select',
-    '#weight' => 9,
+    '#weight' => 11,
     '#title' => t("HTTP redirect code"),
     '#description' => t('The redirect code to send. 301 responses may be cached by browsers and proxies, so 302 is normally the correct choice.'),
     '#options' => $options,
@@ -94,7 +100,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#title' => t('Skip redirect for matching pages'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
-    '#weight' => 10,
+    '#weight' => 12,
   );
   $form['error_page']['matching_paths']['r4032login_match_noredirect_pages'] = array(
     '#type' => 'textarea',
@@ -153,6 +159,8 @@ function r4032login_redirect() {
     // using drupal_goto() with destination set causes a recursive redirect loop
     $login_path = variable_get('r4032login_user_login_path', 'user/login');
     $code = variable_get('r4032login_default_redirect_code', 302);
+    // Check whether we should redirect to desired page after login
+    $goto_destination = variable_get('r4032login_redirect_to_destination');
     // The code in drupal_get_destination() doesn't preserve any query string
     // on 403 pages, so reproduce the part we want here.
     $path = $_GET['destination'];
@@ -166,7 +174,11 @@ function r4032login_redirect() {
       $path = $GLOBALS['base_url'] . $GLOBALS['base_path'] . $path;
     }
     $destination = array('destination' => $path);
-    header('Location: ' . url($login_path, array('query' => $destination, 'absolute' => TRUE)), TRUE, $code);
+    $options = array('query' => $destination, 'absolute' => TRUE);
+    if (!$goto_destination) {
+      unset($options['query']);
+    }
+    header('Location: ' . url($login_path, $options), TRUE, $code);
     drupal_exit();
   }
   else {
