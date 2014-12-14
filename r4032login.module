@@ -160,23 +160,22 @@ function r4032login_redirect() {
     $login_path = variable_get('r4032login_user_login_path', 'user/login');
     $code = variable_get('r4032login_default_redirect_code', 302);
     // Check whether we should redirect to desired page after login
-    $goto_destination = variable_get('r4032login_redirect_to_destination');
-    // The code in drupal_get_destination() doesn't preserve any query string
-    // on 403 pages, so reproduce the part we want here.
-    $path = $_GET['destination'];
-    $query = drupal_http_build_query(drupal_get_query_parameters(NULL, array('q', 'destination')));
-    if ($query != '') {
-      $path .= '?' . $query;
-    }
-    if (url_is_external($login_path)) {
-      // If we are redirecting to another Drupal site for auth, add this site's
-      // base path to the destination URL.
-      $path = $GLOBALS['base_url'] . $GLOBALS['base_path'] . $path;
-    }
-    $destination = array('destination' => $path);
-    $options = array('query' => $destination, 'absolute' => TRUE);
-    if (!$goto_destination) {
-      unset($options['query']);
+    $options = array('absolute' => TRUE);
+    if (variable_get('r4032login_redirect_to_destination', TRUE)) {
+      // The code in drupal_get_destination() doesn't preserve any query string
+      // on 403 pages, so reproduce the part we want here.
+      $path = $_GET['destination'];
+      $query = drupal_http_build_query(drupal_get_query_parameters(NULL, array('q', 'destination')));
+      if ($query != '') {
+        $path .= '?' . $query;
+      }
+      if (url_is_external($login_path)) {
+        // If we are redirecting to another Drupal site for auth, add this site's
+        // base path to the destination URL.
+        $path = $GLOBALS['base_url'] . $GLOBALS['base_path'] . $path;
+      }
+      $destination = array('destination' => $path);
+      $options['query'] = $destination;
     }
     header('Location: ' . url($login_path, $options), TRUE, $code);
     drupal_exit();
