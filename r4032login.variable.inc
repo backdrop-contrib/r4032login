@@ -16,6 +16,13 @@ function r4032login_variable_info($options) {
     'description' => t('Displays an access denied message on the user login page.', array(), $options),
     'group' => 'r4032login',
   );
+  $variables['r4032login_redirect_to_destination'] = array(
+    'type' => 'boolean',
+    'title' => t('Redirect user to the page they tried to access after login'),
+    'default' => 1,
+    'description' => t('Whether we will redirect the user back to originating page after login.'),
+    'group' => 'r4032login',
+  );
   $variables['r4032login_access_denied_message'] = array(
     'type' => 'string',
     'title' => t("User login 'access denied' message", array(), $options),
