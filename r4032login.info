@@ -1,4 +1,5 @@
 name = Redirect 403 to User Login
 description = Redirect anonymous users from 403 Access Denied pages to the /user/login page.
-core = 7.x
+backdrop = 1.x
 configure = admin/config/system/site-information
+type = module
