@@ -177,7 +177,9 @@ function r4032login_redirect() {
       $destination = array('destination' => $path);
       $options['query'] = $destination;
     }
-    header('Location: ' . url($login_path, $options), TRUE, $code);
+    $url = url($login_path, $options);
+    drupal_alter('r4032login_url', $url);
+    header('Location: ' . $url, TRUE, $code);
     drupal_exit();
   }
   else {
