@@ -159,6 +159,7 @@ function r4032login_redirect() {
     // using drupal_goto() with destination set causes a recursive redirect loop
     $login_path = variable_get('r4032login_user_login_path', 'user/login');
     $code = variable_get('r4032login_default_redirect_code', 302);
+    drupal_alter('r4032login_code', $code);
     // Check whether we should redirect to desired page after login
     $options = array('absolute' => TRUE);
     if (variable_get('r4032login_redirect_to_destination', TRUE)) {
