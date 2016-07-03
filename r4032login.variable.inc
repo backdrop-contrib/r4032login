@@ -48,7 +48,7 @@ function r4032login_variable_info($options) {
     'type' => 'select',
     'title' => t("HTTP default redirect code"),
     'description' => t('The redirect code to send by default. 301 responses may be cached by browsers and proxies.'),
-    'default_value' => 302,
+    'default' => 302,
     'group' => 'r4032login',
   );
   $variables['r4032login_match_redirect_code'] = array(
