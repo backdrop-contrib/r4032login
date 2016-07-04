@@ -15,6 +15,16 @@ Installation
 Extract and enable r4032login.
 Configure at admin/config/system/site-information .
 
+Status Codes
+------------
+
+* 200 OK
+* 301 Moved Permanently
+* 302 Found
+* 307 Temporary Redirect
+* 403 Forbidden
+* 451 Unavailable For Legal Reasons
+
 Current Maintainer
 ------------------
 

@@ -86,7 +86,14 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#description' => t('The path to the user login form. Omit the beginning slash, ie: user/login'),
     '#default_value' => config_get('r4032login.settings', 'r4032login_user_login_path'),
   );
-  $options = array('301' => '301 Moved Permanently', '302' => '302 Found');
+  $options = array(
+    '200' => '200 OK',
+    '301' => '301 Moved Permanently',
+    '302' => '302 Found',
+    '307' => '307 Temporary Redirect',
+    '403' => '403 Forbidden',
+    '451' => '451 Unavailable For Legal Reasons',
+  );
   $form['error_page']['r4032login_default_redirect_code'] = array(
     '#type' => 'select',
     '#weight' => 11,
