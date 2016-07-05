@@ -29,6 +29,17 @@ function r4032login_access_callback() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function r4032login_theme() {
+  return array(
+    'r4032login_denied' => array(
+      'variables' => array(),
+    ),
+  );
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function r4032login_form_system_site_information_settings_alter(&$form, &$form_state, $form_id) {
@@ -36,20 +47,20 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#type' => 'checkbox',
     '#weight' => 5,
     '#title' => t('Display access denied message on login page'),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_display_denied_message'),
+    '#default_value' => config_get('r4032login.settings', 'display_denied_message'),
   );
   $form['error_page']['r4032login_redirect_to_destination'] = array(
     '#type' => 'checkbox',
     '#weight' => 6,
     '#title' => t('Redirect user to the page they tried to access after login'),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_redirect_to_destination'),
+    '#default_value' => config_get('r4032login.settings', 'redirect_to_destination'),
   );
   $form['error_page']['r4032login_access_denied_message'] = array(
     '#type' => 'textarea',
     '#rows' => 1,
     '#weight' => 7,
     '#title' => t("User login 'access denied' message"),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_access_denied_message'),
+    '#default_value' => config_get('r4032login.settings', 'access_denied_message'),
     '#states' => array(
       'invisible' => array('input[name="r4032login_display_denied_message"]' => array(
         'checked' => FALSE,
@@ -65,7 +76,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     ),
     '#weight' => 8,
     '#title' => t("User login 'access denied' message type"),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_access_denied_message_type'),
+    '#default_value' => config_get('r4032login.settings', 'access_denied_message_type'),
     '#states' => array(
       'invisible' => array('input[name="r4032login_display_denied_message"]' => array(
         'checked' => FALSE,
@@ -77,14 +88,14 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#weight' => 9,
     '#title' => t("Redirect authenticated users to"),
     '#description' => t('If an authenticated user tries to access a page they can not, redirect them to the given page. Use &lt;front&gt; for the front page, leave blank for a default access denied page.'),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_redirect_authenticated_users_to'),
+    '#default_value' => config_get('r4032login.settings', 'redirect_authenticated_users_to'),
   );
   $form['error_page']['r4032login_user_login_path'] = array(
     '#type' => 'textfield',
     '#weight' => 10,
     '#title' => t("Path to user login form"),
     '#description' => t('The path to the user login form. Omit the beginning slash, ie: user/login'),
-    '#default_value' => config_get('r4032login.settings', 'r4032login_user_login_path'),
+    '#default_value' => config_get('r4032login.settings', 'user_login_path'),
   );
   $options = array(
     '200' => '200 OK',
@@ -100,7 +111,7 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
     '#title' => t("HTTP redirect code"),
     '#description' => t('The redirect code to send. 301 responses may be cached by browsers and proxies, so 302 is normally the correct choice.'),
     '#options' => $options,
-    '#default_value' => config_get('r4032login.settings', 'r4032login_default_redirect_code'),
+    '#default_value' => config_get('r4032login.settings', 'default_redirect_code'),
   );
   $form['error_page']['matching_paths'] = array(
     '#type' => 'fieldset',
@@ -112,21 +123,26 @@ function r4032login_form_system_site_information_settings_alter(&$form, &$form_s
   $form['error_page']['matching_paths']['r4032login_match_noredirect_pages'] = array(
     '#type' => 'textarea',
     '#title' => '<span class="element-invisible">' . t('Only the listed pages') . '</span>',
-    '#default_value' => config_get('r4032login.settings', 'r4032login_match_noredirect_pages'),
+    '#default_value' => config_get('r4032login.settings', 'match_noredirect_pages'),
     '#description' => t('Instead of redirecting, the user will get an access deined response and see the standard login form. This may be useful when the response code is important - such as for removing outdated content from search engines.  Use the path node/* for all content.') . ' ' . t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>')),
   );
-  return system_settings_form($form);
+  $form['#submit'][] = 'r4032login_form_system_site_information_settings_submit';
 }
 
 /**
- * Implements hook_theme().
+ * Callback from r4032login_form_system_site_information_settings_alter().
  */
-function r4032login_theme() {
-  return array(
-    'r4032login_denied' => array(
-      'variables' => array(),
-    ),
-  );
+function r4032login_form_system_site_information_settings_submit($form, &$form_state) {
+  $config = config('r4032login.settings');
+  $config->set('display_denied_message', $form_state['values']['r4032login_display_denied_message']);
+  $config->set('redirect_to_destination', $form_state['values']['r4032login_redirect_to_destination']);
+  $config->set('access_denied_message', $form_state['values']['r4032login_access_denied_message']);
+  $config->set('access_denied_message_type', $form_state['values']['r4032login_access_denied_message_type']);
+  $config->set('redirect_authenticated_users_to', $form_state['values']['r4032login_redirect_authenticated_users_to']);
+  $config->set('user_login_path', $form_state['values']['r4032login_user_login_path']);
+  $config->set('default_redirect_code', $form_state['values']['r4032login_default_redirect_code']);
+  $config->set('match_noredirect_pages', $form_state['values']['r4032login_match_noredirect_pages']);
+  $config->save();
 }
 
 /**
@@ -140,13 +156,13 @@ function r4032login_redirect() {
   global $user, $language;
   if (user_is_anonymous()) {
     // Show the access denied message.
-    if (config_get('r4032login.settings', 'r4032login_display_denied_message') && empty($_POST)) {
-      $message = config_get('r4032login.settings', 'r4032login_access_denied_message');
-      $message_type = config_get('r4032login.settings', 'r4032login_access_denied_message_type');
+    if (config_get('r4032login.settings', 'display_denied_message') && empty($_POST)) {
+      $message = config_get('r4032login.settings', 'access_denied_message');
+      $message_type = config_get('r4032login.settings', 'access_denied_message_type');
       backdrop_set_message(filter_xss_admin($message), $message_type);
     }
     $page_match = FALSE;
-    $pages = config_get('r4032login.settings', 'r4032login_match_noredirect_pages');
+    $pages = config_get('r4032login.settings', 'match_noredirect_pages');
     if ($pages) {
       // When on an access denied page, Backdrop stores the original path in
       // $_GET['destination'] in backdrop_deliver_html_page().
@@ -164,12 +180,12 @@ function r4032login_redirect() {
     }
     // Handle redirection to the login form.
     // using backdrop_goto() with destination set causes a recursive redirect loop
-    $login_path = config_get('r4032login.settings', 'r4032login_user_login_path');
-    $code = config_get('r4032login.settings', 'r4032login_default_redirect_code');
+    $login_path = config_get('r4032login.settings', 'user_login_path');
+    $code = config_get('r4032login.settings', 'default_redirect_code');
     backdrop_alter('r4032login_code', $code);
     // Check whether we should redirect to desired page after login
     $options = array('absolute' => TRUE);
-    if (config_get('r4032login.settings', 'r4032login_redirect_to_destination')) {
+    if (config_get('r4032login.settings', 'redirect_to_destination')) {
       // The code in backdrop_get_destination() doesn't preserve any query string
       // on 403 pages, so reproduce the part we want here.
       $path = $_GET['destination'];
@@ -192,7 +208,7 @@ function r4032login_redirect() {
   }
   else {
     // Check to see if we are to redirect the user.
-    $redirect = config_get('r4032login.settings', 'r4032login_redirect_authenticated_users_to');
+    $redirect = config_get('r4032login.settings', 'redirect_authenticated_users_to');
     if (empty($redirect)) {
       // Display the default access denied page.
       return theme('r4032login_denied');
