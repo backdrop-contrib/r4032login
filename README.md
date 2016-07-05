@@ -4,7 +4,7 @@ Redirect 403 to User Login
 
 Redirect the HTTP 403 error page to the Backdrop /user/login page with a message
 that reads, "Access denied. You must login to view this page." Also, a redirect
-to the desired page is appended in the url query string so that, once login is
+to the desired page is appended in the URL query string so that, once login is
 successful, the user is taken directly where they were originally trying to go.
 
 Makes for a much more user-friendly Backdrop.
@@ -13,7 +13,8 @@ Installation
 ------------
 
 Extract and enable r4032login.
-Configure at admin/config/system/site-information .
+
+Configuration settings are appended to the site information administration form.
 
 Status Codes
 ------------
