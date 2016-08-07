@@ -6,6 +6,18 @@
  */
 
 /**
+ * Implements hook_config_info();
+ */
+function r4032login_config_info() {
+  $prefixes = array();
+  $prefixes['r4032login.settings'] = array(
+    'group' => t('Configuration'),
+    'label' => t('Redirect 403 to User Login settings'),
+  );
+  return $prefixes;
+}
+
+/**
  * Implements hook_menu().
  */
 function r4032login_menu() {
